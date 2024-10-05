@@ -6,15 +6,12 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from datetime import datetime
-from dotenv import load_dotenv
+
 import os
 
-# Laden der Umgebungsvariablen aus der .env-Datei
-load_dotenv()
-
 # Ihre E-Mail-Adresse und das App-Passwort aus Umgebungsvariablen
-sender_email = os.getenv("MAILADRESSE")
-password = os.getenv("MAILPASSWORT")
+sender_email = st.secrets["MAILADRESSE"]
+password = st.secrets["MAILPASSWORT"]
 
 # Empfängeradresse (kann dieselbe sein)
 receiver_email = sender_email  # oder eine andere E-Mail-Adresse
