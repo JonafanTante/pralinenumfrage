@@ -7,27 +7,30 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from datetime import datetime
 
-import os
-
-# Ihre E-Mail-Adresse und das App-Passwort aus Umgebungsvariablen
+# Laden der Geheimnisse aus st.secrets
 sender_email = st.secrets["MAILADRESSE"]
 password = st.secrets["MAILPASSWORT"]
 
 # Empfängeradresse (kann dieselbe sein)
 receiver_email = sender_email  # oder eine andere E-Mail-Adresse
 
-st.set_page_config(page_title="Pralinen Umfrage", page_icon="🍫", layout="wide")
+st.set_page_config(
+    page_title="Pralinen Umfrage",
+    page_icon="🍫",
+    layout="centered",  # Für bessere Darstellung auf Mobilgeräten
+)
 
 # Überprüfen, ob die Umfrage bereits abgeschlossen wurde
 if 'abfrage_beendet' in st.session_state and st.session_state['abfrage_beendet']:
     st.write("Vielen Dank für das Ausfüllen der Umfrage!")
+    st.image('dancegif.gif')
     st.stop()
 
 st.title("Pralinen Umfrage")
-st.write("Bitte nehmen Sie sich einen Moment Zeit, um unsere Pralinen zu bewerten.")
+st.write("Bitte einen Moment Zeit nehmen, um unsere Pralinen zu bewerten.")
 
 # Optionales Namensfeld
-name = st.text_input("Ihr Name (optional)")
+name = st.text_input("Name (optional)")
 
 # Liste der Pralinen mit Beschreibungen und Bildpfaden
 pralinen = [
@@ -73,8 +76,8 @@ pralinen = [
     }
 ]
 
-# Bewertungsoptionen
-options = ["Sehr gut", "Gut", "Neutral", "Weniger gut", "Schlecht"]
+# Bewertungsoptionen (Schulnoten 1 bis 5)
+options = ["1", "2", "3", "4", "5"]
 
 # Platz für die Bewertungen
 bewertungen = {}
@@ -87,41 +90,42 @@ for praline in pralinen:
     with cols[1]:
         st.write(praline["beschreibung"])
         bewertungen[praline["name"]] = {}
-        bewertungen[praline["name"]]["füllung"] = st.radio(
-            f"Bewerten Sie die Füllung von {praline['name']}",
+        # Nur eine Bewertung (Schulnote)
+        bewertungen[praline["name"]]["bewertung"] = st.radio(
+            f"Bewertung dieser Praline (Schulnote 1-5):",
             options=options,
             index=2,
-            key=f"füllung_{praline['name']}"
+            key=f"bewertung_{praline['name']}"
         )
-        bewertungen[praline["name"]]["topping"] = st.radio(
-            f"Bewerten Sie das Topping von {praline['name']}",
-            options=options,
-            index=2,
-            key=f"topping_{praline['name']}"
-        )
-        bewertungen[praline["name"]]["gesamt"] = st.radio(
-            f"Gesamtbewertung für {praline['name']}",
-            options=options,
-            index=2,
-            key=f"gesamt_{praline['name']}"
+        # Optionales Textfeld für Rückmeldungen
+        bewertungen[praline["name"]]["feedback"] = st.text_area(
+            f"Optionales Feedback zu dieser Praline:",
+            key=f"feedback_{praline['name']}"
         )
 
+# Ranking der Pralinen
 st.header("Ranking der Pralinen")
-st.write("Bitte ordnen Sie die Pralinen nach Ihrer Präferenz (von Lieblingspraline bis weniger beliebt).")
+st.write("Die Pralinen nach persönlicher Präferenz ordnen (von Lieblingspraline bis weniger beliebt).")
 
-# Namen der Pralinen für das Ranking
-pralinen_namen = [praline["name"] for praline in pralinen]
+# Beschreibungen der Pralinen verwenden
+pralinen_beschreibungen = [praline['beschreibung'] for praline in pralinen]
+
+# Mapping von Beschreibung zu Pralinennamen
+beschreibung_zu_name = {praline['beschreibung']: praline['name'] for praline in pralinen}
 
 # Ranking-Funktion
 try:
-    ranking = sort_items(pralinen_namen, direction="vertical", key='sortable_namen')
+    ranking_beschreibungen = sort_items(pralinen_beschreibungen, direction="vertical", key='sortable_beschreibungen')
+    # Mapping zurück zu den Pralinennamen
+    ranking = [beschreibung_zu_name[beschreibung] for beschreibung in ranking_beschreibungen]
 except Exception as e:
-    st.write("Bitte installieren Sie das 'streamlit-sortables' Package für das Ranking.")
+    st.write("Bitte das 'streamlit-sortables' Package installieren für das Ranking.")
     st.write(f"Fehler: {e}")
     ranking = []
 
-st.header("Ihre Ideen und Rückmeldungen")
-neue_sorten = st.text_area("Haben Sie Ideen für neue Pralinensorten?")
+# Freitextfelder
+st.header("Ideen und Rückmeldungen")
+neue_sorten = st.text_area("Ideen für neue Pralinensorten?")
 feedback = st.text_area("Weitere Rückmeldungen:")
 
 # Daten speichern und per E-Mail senden
@@ -146,7 +150,7 @@ if st.button("Abschicken"):
     message["To"] = receiver_email
 
     # Nachricht erstellen
-    text = f"Es wurde eine neue Umfrage von {name} ausgefüllt. Die Ergebnisse finden sich im Anhang."
+    text = "Es wurde eine neue Umfrage ausgefüllt. Die Ergebnisse befinden sich im Anhang."
     part1 = MIMEText(text, "plain", "utf-8")
     message.attach(part1)
 
@@ -162,11 +166,13 @@ if st.button("Abschicken"):
             server.login(sender_email, password)
             server.sendmail(sender_email, receiver_email, message.as_string())
 
-        st.success("Vielen Dank für Ihre Teilnahme! Ihre Antworten wurden gesendet.")
+        st.success("Vielen Dank für die Teilnahme! Die Antworten wurden gesendet.")
 
         # Session State aktualisieren und Seite neu laden
         st.session_state['abfrage_beendet'] = True
         st.rerun()
 
+    except smtplib.SMTPAuthenticationError as e:
+        st.error(f"SMTP Authentication Error: {e.smtp_code} - {e.smtp_error.decode('utf-8')}")
     except Exception as e:
-        st.error(f"Es gab ein Problem beim Versenden Ihrer Antworten: {e}")
+        st.error(f"Allgemeiner Fehler: {e}")
