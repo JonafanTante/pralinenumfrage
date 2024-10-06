@@ -77,7 +77,7 @@ pralinen = [
 ]
 
 # Bewertungsoptionen (Schulnoten 1 bis 5)
-options = ["1", "2", "3", "4", "5","6"]
+options = ["1", "2", "3", "4", "5"]
 
 # Platz für die Bewertungen
 bewertungen = {}
@@ -92,7 +92,7 @@ for praline in pralinen:
         bewertungen[praline["name"]] = {}
         # Nur eine Bewertung (Schulnote)
         bewertungen[praline["name"]]["bewertung"] = st.radio(
-            f"Bewertung dieser Praline (Schulnote 1-6):",
+            f"Bewertung dieser Praline (Schulnote 1-5):",
             options=options,
             index=2,
             horizontal=True,
