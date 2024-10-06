@@ -77,7 +77,7 @@ pralinen = [
 ]
 
 # Bewertungsoptionen (Schulnoten 1 bis 5)
-options = ["1", "2", "3", "4", "5"]
+options = ["1", "2", "3", "4", "5","6"]
 
 # Platz für die Bewertungen
 bewertungen = {}
@@ -92,9 +92,10 @@ for praline in pralinen:
         bewertungen[praline["name"]] = {}
         # Nur eine Bewertung (Schulnote)
         bewertungen[praline["name"]]["bewertung"] = st.radio(
-            f"Bewertung dieser Praline (Schulnote 1-5):",
+            f"Bewertung dieser Praline (Schulnote 1-6):",
             options=options,
             index=2,
+            horizontal=True,
             key=f"bewertung_{praline['name']}"
         )
         # Optionales Textfeld für Rückmeldungen
@@ -105,7 +106,7 @@ for praline in pralinen:
 
 # Ranking der Pralinen
 st.header("Ranking der Pralinen")
-st.write("Die Pralinen nach persönlicher Präferenz ordnen (von Lieblingspraline bis weniger beliebt).")
+st.write("Die Pralinen nach persönlicher Präferenz ordnen (von Lieblingspraline (oben) bis weniger beliebt (unten)).")
 
 # Beschreibungen der Pralinen verwenden
 pralinen_beschreibungen = [praline['beschreibung'] for praline in pralinen]
@@ -150,7 +151,7 @@ if st.button("Abschicken"):
     message["To"] = receiver_email
 
     # Nachricht erstellen
-    text = "Es wurde eine neue Umfrage ausgefüllt. Die Ergebnisse befinden sich im Anhang."
+    text = f"Es wurde eine neue Umfrage von {name} ausgefüllt. Die Ergebnisse befinden sich im Anhang."
     part1 = MIMEText(text, "plain", "utf-8")
     message.attach(part1)
 
