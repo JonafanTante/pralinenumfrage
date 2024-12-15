@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from datetime import datetime
+import time
 
 # Laden der Geheimnisse aus st.secrets
 sender_email = st.secrets["MAILADRESSE"]
@@ -23,7 +24,6 @@ st.set_page_config(
 # Überprüfen, ob die Umfrage bereits abgeschlossen wurde
 if 'abfrage_beendet' in st.session_state and st.session_state['abfrage_beendet']:
     st.write("Vielen Dank für das Ausfüllen der Umfrage!")
-    st.image('dancegif.gif')
     st.stop()
 
 st.title("Pralinen Umfrage")
@@ -35,44 +35,34 @@ name = st.text_input("Name (optional)")
 # Liste der Pralinen mit Beschreibungen und Bildpfaden
 pralinen = [
     {
-        "name": "Praline 1",
-        "beschreibung": "Füllung: Nougat, Topping: Haselnuss",
-        "bild": "praline1.jpg"
+        "name": "Ingwer-Orange",
+        "beschreibung": "Füllung: Dunkle Schokolade mit Ingweröl und Orangenaroma<br> Verzierung: Orangencrunch und Schokostreusel",
+        "bild": "Ingwer-Orange.png"
     },
     {
-        "name": "Praline 2",
-        "beschreibung": "Füllung: Marzipan, Topping: Mandelsplitter",
-        "bild": "praline2.jpg"
+        "name": "Erdnuss",
+        "beschreibung": "Füllung: Dunkle Schokolade mit Erdnussbutter<br> Verzierung: Gehackte Haselnüsse",
+        "bild": "Erdnuss.png"
     },
     {
-        "name": "Praline 3",
-        "beschreibung": "Füllung: Karamell, Topping: Meersalz",
-        "bild": "praline3.jpg"
+        "name": "Marzipan",
+        "beschreibung": 'Füllung: Voll"milch"schokolade mit Marzipan<br> Verzierung: Gemahlene Mandeln',
+        "bild": "Marzipan.png"
     },
     {
-        "name": "Praline 4",
-        "beschreibung": "Füllung: Himbeere, Topping: Weiße Schokolade",
-        "bild": "praline4.jpg"
+        "name": "Karamell",
+        "beschreibung": 'Füllung: Voll"milch"schokolade mit Lotus-Karamellcreme<br> Verzierung: Gemahlene Lotus-Karamellkekse',
+        "bild": "Karamell.png"
     },
     {
-        "name": "Praline 5",
-        "beschreibung": "Füllung: Pistazie, Topping: Dunkle Schokolade",
-        "bild": "praline5.jpg"
+        "name": "Zitrone",
+        "beschreibung": "Füllung: Weiße Schokolade mit Zitronenaroma<br> Verzierung: Zucker",
+        "bild": "Zitrone.png"
     },
     {
-        "name": "Praline 6",
-        "beschreibung": "Füllung: Kaffeecreme, Topping: Kakaopulver",
-        "bild": "praline6.jpg"
-    },
-    {
-        "name": "Praline 7",
-        "beschreibung": "Füllung: Orange, Topping: Zartbitterschokolade",
-        "bild": "praline7.jpg"
-    },
-    {
-        "name": "Praline 8",
-        "beschreibung": "Füllung: Minze, Topping: Schokostreusel",
-        "bild": "praline8.jpg"
+        "name": "Kokos",
+        "beschreibung": "Füllung: Weiße Schokolade mit Kokosaroma<br> Verzierung: Kokosraspeln",
+        "bild": "Kokos.png"
     }
 ]
 
@@ -88,7 +78,7 @@ for praline in pralinen:
     with cols[0]:
         st.image(praline["bild"], use_column_width=True)
     with cols[1]:
-        st.write(praline["beschreibung"])
+        st.write(praline["beschreibung"],unsafe_allow_html=True)
         bewertungen[praline["name"]] = {}
         # Nur eine Bewertung (Schulnote)
         bewertungen[praline["name"]]["bewertung"] = st.radio(
@@ -168,7 +158,7 @@ if st.button("Abschicken"):
             server.sendmail(sender_email, receiver_email, message.as_string())
 
         st.success("Vielen Dank für die Teilnahme! Die Antworten wurden gesendet.")
-
+        time.sleep(5)
         # Session State aktualisieren und Seite neu laden
         st.session_state['abfrage_beendet'] = True
         st.rerun()
