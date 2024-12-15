@@ -102,7 +102,7 @@ st.write("Die Pralinen nach persönlicher Präferenz ordnen (von Lieblingspralin
 pralinen_beschreibungen = [praline['beschreibung'].replace('<br>','; ') for praline in pralinen]
 
 # Mapping von Beschreibung zu Pralinennamen
-beschreibung_zu_name = {praline['beschreibung']: praline['name'] for praline in pralinen}
+beschreibung_zu_name = {praline['beschreibung'].replace('<br>','; '): praline['name'] for praline in pralinen}
 
 # Ranking-Funktion
 try:
