@@ -99,7 +99,7 @@ st.header("Ranking der Pralinen")
 st.write("Die Pralinen nach persönlicher Präferenz ordnen (von Lieblingspraline (oben) bis weniger beliebt (unten)).")
 
 # Beschreibungen der Pralinen verwenden
-pralinen_beschreibungen = [praline['beschreibung'] for praline in pralinen]
+pralinen_beschreibungen = [praline['beschreibung'].replace('<br>','; ') for praline in pralinen]
 
 # Mapping von Beschreibung zu Pralinennamen
 beschreibung_zu_name = {praline['beschreibung']: praline['name'] for praline in pralinen}
@@ -167,3 +167,4 @@ if st.button("Abschicken"):
         st.error(f"SMTP Authentication Error: {e.smtp_code} - {e.smtp_error.decode('utf-8')}")
     except Exception as e:
         st.error(f"Allgemeiner Fehler: {e}")
+
